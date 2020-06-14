@@ -1,6 +1,6 @@
 # sql-params-setter
 
-      A simple tool that helps you to extract a executable sql from mybatis logs like below:
+      A simple Intellji IDEA plugin that helps you to extract a executable sql from mybatis logs like below:
           ==> Preparing: select * from table where name = ?
           ==> Parameters: Tom(String)
       After selecting these two lines of logs above, you can right click your mouse
