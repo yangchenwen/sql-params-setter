@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.lang3.StringUtils;
+import util.SqlUtil;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -95,7 +96,7 @@ public class PreparedSqlParamsSetterAction extends AnAction {
         }
 
         if (logLines < 2) {
-            return preparedSql.trim();
+            return SqlUtil.format(preparedSql.trim());
         }
 
         String paramLine = mybatisSqlLogs[1];
@@ -113,7 +114,7 @@ public class PreparedSqlParamsSetterAction extends AnAction {
             }
         }
 
-        return preparedSql.trim();
+        return SqlUtil.format(preparedSql.trim());
     }
 
     public static void main(String[] args) {
