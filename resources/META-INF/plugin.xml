@@ -2,22 +2,38 @@
   <id>com.yangchenwen.sqlparamssetter</id>
   <name>SQL Params Setter</name>
   <version>1.0</version>
-  <vendor email="ads8528@163.com"/>
+  <vendor email="ads8528@163.com" url="https://github.com/yangchenwen/sql-params-setter"/>
 
   <description><![CDATA[
+      <p>
       A simple tool that helps you to extract a executable sql from mybatis logs like below:
-          ==> Preparing: select * from table where name = ?
-          ==> Parameters: Tom(String)
+      </p>
+      <p>
+          &nbsp;&nbsp;&nbsp;&nbsp;==> Preparing: select * from table where name = ?
+      </p>
+      <p>
+          &nbsp;&nbsp;&nbsp;&nbsp;==> Parameters: Tom(String)
+      </p>
+      <p>
       After selecting these two lines of logs above, you can right click your mouse
       and select "SQL Params Setter" in the popup menu, then the result executable sql,
       i.e. "select * from table where name = 'Tom'" will be copied to your clipboard.
-
-      Note:
-        The selected area should contain both keyword [Preparing:] in the 1st line and keyword [Parameters:] in the 2nd line.
+      </p>
+      <br/>
+      <p>
+        <b>Note:</b>
+        <ul>
+          <li>The selected area should contain both keyword [Preparing:] in the 1st line and keyword [Parameters:] in the 2nd line.</li>
+        </ul>
+      </p>
     ]]></description>
 
   <change-notes><![CDATA[
-      1. basic function of extracting one executable sql at a time from mybatis logs.
+     <p><b>v1.0</b>
+      <ul>
+        <li>Basic function of extracting one executable sql at a time from mybatis logs.</li>
+      </ul>
+     </p>
     ]]>
   </change-notes>
 
@@ -34,7 +50,8 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="actions.PreparedSqlParamsSetterAction" class="actions.PreparedSqlParamsSetterAction" text="SQL Params Setter">
+    <action id="actions.PreparedSqlParamsSetterAction" class="actions.PreparedSqlParamsSetterAction"
+            text="SQL Params Setter" icon="Icons.PluginIcon">
       <add-to-group group-id="ConsoleEditorPopupMenu" anchor="first"/>
       <add-to-group group-id="EditorPopupMenu" anchor="first"/>
     </action>
