@@ -13,10 +13,9 @@ import util.SqlUtil;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static constants.Const.*;
+import static constants.Const.SEPARATOR_PARAMETER;
+import static constants.Const.SEPARATOR_PREPARING;
 
 /**
  * @author yangchenwen
@@ -47,84 +46,28 @@ public class PreparedSqlParamsSetterAction extends AnAction {
         }
 
         String sql;
-        String message;
         try {
-            sql = extractSqlAndSetParams(selectedMybatisLogs);
+            sql = SqlUtil.parse(selectedMybatisLogs);
         } catch (Exception ex) {
-            message = String.format("Failed at: %s", ex.toString());
-            Notification error = NOTIFICATION_GROUP.createNotification(message, NotificationType.ERROR);
-            Notifications.Bus.notify(error, project);
+            notify(project, String.format("Failed at: %s", ex.toString()), NotificationType.ERROR);
             return;
         }
 
         if (StringUtils.isBlank(sql)) {
-            message = String.format("Selected area should contain both [%s] in the 1st line and [%s] in the 2nd line.",
-                    SEPARATOR_PREPARING, SEPARATOR_PARAMETER);
-            Notification warning = NOTIFICATION_GROUP.createNotification(message, NotificationType.WARNING);
-            Notifications.Bus.notify(warning, project);
+            notify(project, String.format(
+                    "Selected area should contain both [%s] in the 1st line and [%s] in the 2nd line.",
+                    SEPARATOR_PREPARING, SEPARATOR_PARAMETER), NotificationType.WARNING);
             return;
         }
 
         StringSelection selection = new StringSelection(sql);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, selection);
-        message = "Success, copied to clipboard.";
-        Notification success = NOTIFICATION_GROUP.createNotification(message, NotificationType.INFORMATION);
+        notify(project, "Success, copied to clipboard.", NotificationType.INFORMATION);
+    }
+
+    private void notify(Project project, String message, NotificationType type) {
+        Notification success = NOTIFICATION_GROUP.createNotification(message, type);
         Notifications.Bus.notify(success, project);
-    }
-
-    private String extractSqlAndSetParams(String selectedMybatisLogs) {
-        String[] mybatisSqlLogs = StringUtils.split(selectedMybatisLogs, System.lineSeparator());
-        if (mybatisSqlLogs == null) {
-            return StringUtils.EMPTY;
-        }
-
-        int logLines = mybatisSqlLogs.length;
-        if (logLines < 1) {
-            return StringUtils.EMPTY;
-        }
-
-        String sqlLine = mybatisSqlLogs[0];
-        if (StringUtils.isBlank(sqlLine)) {
-            return StringUtils.EMPTY;
-        }
-        String preparedSql = StringUtils.EMPTY;
-        Matcher matcher = PREPARING_PATTERN.matcher(sqlLine);
-        if (matcher.find()) {
-            String group = matcher.group();
-            preparedSql = StringUtils.replace(group, SEPARATOR_PREPARING, StringUtils.EMPTY);
-        }
-
-        if (logLines < 2) {
-            return SqlUtil.format(preparedSql.trim());
-        }
-
-        String paramLine = mybatisSqlLogs[1];
-        Matcher paramsMatcher = PARAMETER_PATTERN.matcher(paramLine);
-        if (paramsMatcher.find()) {
-            String params = StringUtils.replace(paramsMatcher.group(), SEPARATOR_PARAMETER, StringUtils.EMPTY);
-            String[] paramsArr = StringUtils.split(params, ",");
-            for (String param : paramsArr) {
-                String replacement = param.replaceAll(PARAM_TYPE_REGEX, StringUtils.EMPTY);
-                if (param.contains("String") || param.contains("Date")
-                        || param.contains("Timestamp") || param.contains("Time")) {
-                    replacement = "'" + replacement.trim() + "'";
-                }
-                preparedSql = StringUtils.replaceOnce(preparedSql, PALACE_HOLDER, replacement);
-            }
-        }
-
-        return SqlUtil.format(preparedSql.trim());
-    }
-
-    public static void main(String[] args) {
-        Pattern pattern = Pattern.compile("Preparing:(.*?)$");
-        Matcher matcher = pattern.matcher("==>  Preparing: select count(0) from dual");
-
-        if (matcher.find()) {
-            System.out.println(matcher.group());
-        }
-
-        System.out.println("abc(String)".replaceAll("\\((.*?)\\)", ""));
     }
 }

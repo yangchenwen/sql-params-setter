@@ -1,9 +1,13 @@
 package util;
 
+import bean.Parameter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+
+import static constants.Const.*;
 
 /**
  * @author yangchenwen
@@ -31,6 +35,12 @@ public class SqlUtil {
         SQL_FORMAT_KW.put("(?i)\\s+group by\\s+", lineSeparator + "group by ");
     }
 
+    /**
+     * simply sql format
+     *
+     * @param sql the executable sql
+     * @return formatted executable sql
+     */
     public static String format(String sql) {
         if (StringUtils.isBlank(sql)) {
             return StringUtils.EMPTY;
@@ -40,6 +50,44 @@ public class SqlUtil {
             sql = sql.replaceAll(entry.getKey(), entry.getValue());
         }
 
-        return sql.endsWith(";") ? sql : sql + ";";
+        return sql.endsWith(SEMICOLON) ? sql : sql + SEMICOLON;
+    }
+
+
+    /**
+     * parsing the selected mybatis logs
+     * e.g. <p>{@code ==> Preparing: select * from table where id = ?}</p>
+     * <p>{@code ==> Parameters: 123(String)}</p>
+     * to extract an executable sql
+     *
+     * @param mybatisLogs the selected mybatis logs
+     * @return an executable sql
+     */
+    public static String parse(String mybatisLogs) {
+        if (StringUtils.isBlank(mybatisLogs)) {
+            return StringUtils.EMPTY;
+        }
+
+        String preparedSql = StringUtils.EMPTY;
+        Matcher preparingSqlMatcher = PREPARING_PATTERN.matcher(mybatisLogs);
+        if (preparingSqlMatcher.find()) {
+            preparedSql = preparingSqlMatcher.group(1).trim();
+        }
+
+        Matcher paramsMatcher = PARAMETER_PATTERN.matcher(mybatisLogs);
+        if (paramsMatcher.find()) {
+            String params = paramsMatcher.group(1);
+            if (StringUtils.isBlank(params)) {
+                return format(preparedSql);
+            }
+
+            String[] paramsArr = StringUtils.split(params, COMMA);
+            for (String param : paramsArr) {
+                String value = Parameter.of(param).getValue();
+                preparedSql = StringUtils.replaceOnce(preparedSql, PALACE_HOLDER, value);
+            }
+        }
+
+        return format(preparedSql);
     }
 }
