@@ -26,6 +26,10 @@
           <li>The selected area should contain both keyword [Preparing:] in the 1st line and keyword [Parameters:] in the 2nd line.</li>
         </ul>
       </p>
+      <br/>
+      <p>
+        <b><a href="https://github.com/yangchenwen/sql-params-setter">Github</a></b>
+      </p>
     ]]></description>
 
   <change-notes><![CDATA[
