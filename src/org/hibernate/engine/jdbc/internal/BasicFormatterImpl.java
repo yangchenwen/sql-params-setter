@@ -111,34 +111,18 @@ public class BasicFormatterImpl implements Formatter {
                 lcToken = token.toLowerCase(Locale.ROOT);
 
                 switch (token) {
-                    case "'": {
-                        String t;
-                        do {
-                            t = tokens.nextToken();
-                            token += t;
-                        }
+                    case "'":
                         // cannot handle single quotes
-                        while (!"'".equals(t) && tokens.hasMoreTokens());
+                        concatUntil("'");
                         break;
-                    }
                     case "\"": {
-                        String t;
-                        do {
-                            t = tokens.nextToken();
-                            token += t;
-                        }
-                        while (!"\"".equals(t) && tokens.hasMoreTokens());
+                        concatUntil("\"");
                         break;
                     }
                     // SQL Server uses "[" and "]" to escape reserved words
                     // see SQLServerDialect.openQuote and SQLServerDialect.closeQuote
                     case "[": {
-                        String t;
-                        do {
-                            t = tokens.nextToken();
-                            token += t;
-                        }
-                        while (!"]".equals(t) && tokens.hasMoreTokens());
+                        concatUntil("]");
                         break;
                     }
                 }
@@ -155,6 +139,17 @@ public class BasicFormatterImpl implements Formatter {
                 }
             }
             return result.toString();
+        }
+
+        private void concatUntil(String closure) {
+            String t;
+            StringBuilder s = new StringBuilder(token);
+            do {
+                t = tokens.nextToken();
+                s.append(t);
+            }
+            while (!closure.equals(t) && tokens.hasMoreTokens());
+            token = s.toString();
         }
 
         private void misc() {
@@ -431,6 +426,12 @@ public class BasicFormatterImpl implements Formatter {
                 }
             };
 
+            /**
+             * method that actually doing the process work.
+             *
+             * @param p current process
+             * @return true if the work is done
+             */
             abstract public boolean process(FormatProcess p);
 
             private static boolean isFunctionName(String tok) {
