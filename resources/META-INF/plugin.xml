@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.yangchenwen.sqlparamssetter</id>
   <name>SQL Params Setter</name>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <vendor email="ads8528@163.com" url="https://github.com/yangchenwen/sql-params-setter">yangchenwen</vendor>
 
   <description><![CDATA[
@@ -33,6 +33,12 @@
     ]]></description>
 
   <change-notes><![CDATA[
+     <p><b>v1.0.2</b>
+      <ul>
+        <li>Fix Bug: Params setting is not functional.</li>
+      </ul>
+     </p>
+
      <p><b>v1.0.1</b>
       <ul>
         <li>Using Hibernate SQL formatter.</li>

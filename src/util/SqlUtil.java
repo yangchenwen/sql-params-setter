@@ -86,6 +86,10 @@ public class SqlUtil {
         if (StringUtils.isBlank(mybatisLogs)) {
             return StringUtils.EMPTY;
         }
+        String lineSeparator = System.lineSeparator();
+        if (!mybatisLogs.endsWith(lineSeparator)) {
+            mybatisLogs += lineSeparator;
+        }
 
         String preparedSql = StringUtils.EMPTY;
         Matcher preparingSqlMatcher = PREPARING_PATTERN.matcher(mybatisLogs);
