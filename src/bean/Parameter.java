@@ -1,7 +1,6 @@
 package bean;
 
-import static constants.Const.L_BRACKET;
-import static constants.Const.R_BRACKET;
+import static constants.Const.*;
 
 /**
  * @author yangchenwen
@@ -18,6 +17,9 @@ public class Parameter {
     }
 
     public static Parameter of(String param) {
+        if (!END_WITH_PAREN.matcher(param).find()) {
+            return new Parameter(param.trim(), Type.STRING);
+        }
         String value = param.substring(0, param.indexOf(L_BRACKET)).trim();
         Type type = Type.OTHER;
         try {
