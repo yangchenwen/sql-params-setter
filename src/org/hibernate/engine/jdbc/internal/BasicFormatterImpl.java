@@ -77,7 +77,6 @@ public class BasicFormatterImpl implements Formatter {
         boolean beginLine = true;
         boolean afterBeginBeforeEnd;
         boolean afterByOrSetOrFromOrSelect;
-        boolean afterValues;
         boolean afterOn;
         boolean afterBetween;
         boolean afterInsert;
@@ -127,12 +126,7 @@ public class BasicFormatterImpl implements Formatter {
                     }
                 }
 
-                ProcessEnum[] processEnums = ProcessEnum.values();
-                for (ProcessEnum pe : processEnums) {
-                    if (pe.process(this)) {
-                        break;
-                    }
-                }
+                ProcessEnum.start(this);
 
                 if (!ProcessEnum.isWhitespace(token)) {
                     lastToken = lcToken;
@@ -184,34 +178,34 @@ public class BasicFormatterImpl implements Formatter {
 
             PROCESS_COMMA_AFTER_BY_FROM_SELECT {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (p.afterByOrSetOrFromOrSelect && ",".equals(p.token)) {
                         p.out();
                         p.newline();
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_COMMA_AFTER_ON.process(p);
                 }
             },
 
             PROCESS_COMMA_AFTER_ON {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (p.afterOn && ",".equals(p.token)) {
                         p.out();
                         p.indent--;
                         p.newline();
                         p.afterOn = false;
                         p.afterByOrSetOrFromOrSelect = true;
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_OPEN_PAREN.process(p);
                 }
             },
 
             PROCESS_OPEN_PAREN {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if ("(".equals(p.token)) {
                         if (isFunctionName(p.lastToken) || p.inFunction > 0) {
                             p.inFunction++;
@@ -228,16 +222,15 @@ public class BasicFormatterImpl implements Formatter {
                             }
                         }
                         p.parensSinceSelect++;
-
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_CLOSE_PAREN.process(p);
                 }
             },
 
             PROCESS_CLOSE_PAREN {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (")".equals(p.token)) {
                         p.parensSinceSelect--;
                         if (p.parensSinceSelect < 0) {
@@ -255,16 +248,15 @@ public class BasicFormatterImpl implements Formatter {
                         }
                         p.out();
                         p.beginLine = false;
-
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_BEGIN_NEW_CLAUSE.process(p);
                 }
             },
 
             PROCESS_BEGIN_NEW_CLAUSE {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (BEGIN_CLAUSES.contains(p.lcToken)) {
                         if (!p.afterBeginBeforeEnd) {
                             if (p.afterOn) {
@@ -277,15 +269,15 @@ public class BasicFormatterImpl implements Formatter {
                         p.out();
                         p.beginLine = false;
                         p.afterBeginBeforeEnd = true;
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_END_NEW_CLAUSE.process(p);
                 }
             },
 
             PROCESS_END_NEW_CLAUSE {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (END_CLAUSES.contains(p.lcToken)) {
                         if (!p.afterBeginBeforeEnd) {
                             p.indent--;
@@ -304,15 +296,15 @@ public class BasicFormatterImpl implements Formatter {
                         p.afterByOrSetOrFromOrSelect = "by".equals(p.lcToken)
                                 || "set".equals(p.lcToken)
                                 || "from".equals(p.lcToken);
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_SELECT.process(p);
                 }
             },
 
             PROCESS_SELECT {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if ("select".equals(p.lcToken)) {
                         p.out();
                         p.indent++;
@@ -321,15 +313,15 @@ public class BasicFormatterImpl implements Formatter {
                         p.afterByOrFromOrSelects.addLast(p.afterByOrSetOrFromOrSelect);
                         p.parensSinceSelect = 0;
                         p.afterByOrSetOrFromOrSelect = true;
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_UPDATE_INSERT_DELETE.process(p);
                 }
             },
 
             PROCESS_UPDATE_INSERT_DELETE {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (DML.contains(p.lcToken)) {
                         p.out();
                         p.indent++;
@@ -340,58 +332,57 @@ public class BasicFormatterImpl implements Formatter {
                         if ("insert".equals(p.lcToken)) {
                             p.afterInsert = true;
                         }
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_VALUES.process(p);
                 }
             },
 
             PROCESS_VALUES {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if ("values".equals(p.lcToken)) {
                         p.indent--;
                         p.newline();
                         p.out();
                         p.indent++;
                         p.newline();
-                        p.afterValues = true;
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_ON.process(p);
                 }
             },
 
             PROCESS_ON {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if ("on".equals(p.lcToken)) {
                         p.indent++;
                         p.afterOn = true;
                         p.newline();
                         p.out();
                         p.beginLine = false;
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_AFTER_BETWEEN_AND.process(p);
                 }
             },
 
             PROCESS_AFTER_BETWEEN_AND {
                 @Override
-                public boolean process(FormatProcess p) {
-                    if (p.afterBetween && p.lcToken.equals("and")) {
+                public void process(FormatProcess p) {
+                    if (p.afterBetween && "and".equals(p.lcToken)) {
                         p.misc();
                         p.afterBetween = false;
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_LOGICAL.process(p);
                 }
             },
 
             PROCESS_LOGICAL {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (LOGICAL.contains(p.lcToken)) {
                         if ("end".equals(p.lcToken)) {
                             p.indent--;
@@ -399,40 +390,48 @@ public class BasicFormatterImpl implements Formatter {
                         p.newline();
                         p.out();
                         p.beginLine = false;
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_WHITE_SPACE.process(p);
                 }
             },
 
             PROCESS_WHITE_SPACE {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     if (isWhitespace(p.token)) {
                         if (!p.beginLine) {
                             p.result.append(" ");
                         }
-                        return true;
+                        return;
                     }
-                    return false;
+                    PROCESS_MISC.process(p);
                 }
             },
 
             PROCESS_MISC {
                 @Override
-                public boolean process(FormatProcess p) {
+                public void process(FormatProcess p) {
                     p.misc();
-                    return true;
                 }
             };
 
             /**
-             * method that actually doing the process work.
+             * Method that actually doing the process work.
              *
              * @param p current process
-             * @return true if the work is done
              */
-            abstract public boolean process(FormatProcess p);
+            abstract public void process(FormatProcess p);
+
+            /**
+             * Start the process using the first ProcessEnum.
+             * If it's not the right guy, will handover to the next...
+             *
+             * @param p current process
+             */
+            public static void start(FormatProcess p) {
+                PROCESS_COMMA_AFTER_BY_FROM_SELECT.process(p);
+            }
 
             private static boolean isFunctionName(String tok) {
                 if (tok == null || tok.length() == 0) {
