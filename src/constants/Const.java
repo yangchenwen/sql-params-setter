@@ -18,4 +18,5 @@ public interface Const {
     Pattern PREPARING_PATTERN = Pattern.compile(SEPARATOR_PREPARING + "(.*?)(?=\n|\r|\r\n)");
     Pattern PARAMETER_PATTERN = Pattern.compile(SEPARATOR_PARAMETER + "(.*?)(?=\n|\r|\r\n)");
     Pattern END_WITH_PAREN = Pattern.compile("\\((.*?)\\)$");
+    String NOTIFY_GROUP = "SqlParamsSetter.NotificationGroup";
 }

@@ -10,5 +10,5 @@ import javax.swing.Icon
 object Icons {
 
     @JvmField
-    val PluginIcon: Icon = IconLoader.getIcon("/icon/pluginIcon.svg")
+    val PluginIcon: Icon = IconLoader.getIcon("/icon/pluginIcon.svg", Icons.javaClass)
 }

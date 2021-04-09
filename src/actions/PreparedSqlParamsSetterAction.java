@@ -7,15 +7,14 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import util.SqlUtil;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
-import static constants.Const.SEPARATOR_PARAMETER;
-import static constants.Const.SEPARATOR_PREPARING;
+import static constants.Const.*;
 
 /**
  * @author yangchenwen
@@ -23,8 +22,11 @@ import static constants.Const.SEPARATOR_PREPARING;
  */
 public class PreparedSqlParamsSetterAction extends AnAction {
 
-    private static final NotificationGroup NOTIFICATION_GROUP =
-            new NotificationGroup("SqlParamsSetter.NotificationGroup", NotificationDisplayType.BALLOON, true);
+    private static final NotificationGroup NOTIFICATION_GROUP;
+
+    static {
+        NOTIFICATION_GROUP = NotificationGroupManager.getInstance().getNotificationGroup(NOTIFY_GROUP);
+    }
 
     @Override
     public void actionPerformed(AnActionEvent e) {
