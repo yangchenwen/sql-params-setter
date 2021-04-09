@@ -20,12 +20,14 @@ public class Parameter {
         if (!END_WITH_PAREN.matcher(param).find()) {
             return new Parameter(param.trim(), Type.STRING);
         }
-        String value = param.substring(0, param.indexOf(L_BRACKET)).trim();
-        Type type = Type.OTHER;
+        String value = param.substring(0, param.lastIndexOf(L_BRACKET)).trim();
+        Type type;
         try {
-            type = Type.valueOf(param.substring(param.indexOf(L_BRACKET) + 1, param.indexOf(R_BRACKET)).toUpperCase());
+            type = Type.valueOf(
+                    param.substring(param.lastIndexOf(L_BRACKET) + 1, param.lastIndexOf(R_BRACKET)).toUpperCase()
+            );
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            type = Type.OTHER;
         }
         return new Parameter(value, type);
     }
