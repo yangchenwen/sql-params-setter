@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.yangchenwen.sqlparamssetter</id>
   <name>SQL Params Setter</name>
-  <version>1.0.3</version>
+  <version>1.1</version>
   <vendor email="ads8528@163.com" url="https://github.com/yangchenwen/sql-params-setter">yangchenwen</vendor>
 
   <description><![CDATA[
@@ -33,7 +33,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-       <p><b>v1.1.0</b>
+       <p><b>v1.1</b>
       <ul>
         <li>New version for build 203.3645.34 or newer</li>
         <li>Fix a bug</li>
