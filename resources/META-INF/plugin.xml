@@ -33,6 +33,12 @@
     ]]></description>
 
   <change-notes><![CDATA[
+       <p><b>v1.1.0</b>
+      <ul>
+        <li>New version for build 203.3645.34 or newer</li>
+        <li>Fix a bug</li>
+      </ul>
+     </p>
      <p><b>v1.0.3</b>
       <ul>
         <li>Fix Bug: Crash when params contains "null".</li>
